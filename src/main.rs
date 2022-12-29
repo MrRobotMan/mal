@@ -1,8 +1,13 @@
-use std::{error::Error, process::exit};
+#[macro_use]
+extern crate lazy_static;
 
+use std::process::exit;
+
+mod printer;
 mod reader;
 mod step0_repl;
 mod step1_repl;
+mod types;
 
 fn main() {
     let runners: Vec<fn() -> ()> = vec![step0_repl::rep, step1_repl::rep];

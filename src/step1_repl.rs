@@ -1,22 +1,5 @@
-use super::reader::Reader;
+use super::{printer::pr_str, reader::read_str};
 use rustyline::{error::ReadlineError, Editor};
-
-use std::{
-    error::Error,
-    io::{self, stdin, stdout, Write},
-};
-
-fn read(line: String) -> String {
-    line
-}
-
-fn eval(line: String) -> String {
-    line
-}
-
-fn print(line: String) {
-    println!("{line}");
-}
 
 pub fn rep() -> () {
     let mut rl = match Editor::<()>::new() {
@@ -35,9 +18,12 @@ pub fn rep() -> () {
             Ok(line) if line.to_lowercase() == "exit" => break,
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
-                let mut buffer = read(line);
-                buffer = eval(buffer);
-                print(buffer)
+                match read_str(&line) {
+                    Ok(val) => {
+                        println!("{}", pr_str(&val))
+                    }
+                    Err(e) => println!("{e}"),
+                };
             }
             Err(ReadlineError::Eof) | Err(ReadlineError::Interrupted) => break,
             Err(err) => {
