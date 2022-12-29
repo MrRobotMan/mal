@@ -1,9 +1,10 @@
 use std::{error::Error, process::exit};
 
 mod step0_repl;
+mod step1_repl;
 
 fn main() {
-    let runners: Vec<fn() -> Result<(), Box<dyn Error>>> = vec![step0_repl::rep];
+    let runners: Vec<fn() -> Result<(), Box<dyn Error>>> = vec![step0_repl::rep, step1_repl::rep];
     let args = std::env::args().collect::<Vec<String>>();
 
     let runner = if args.len() == 2 {
