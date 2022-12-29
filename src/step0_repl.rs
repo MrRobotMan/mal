@@ -21,22 +21,29 @@ fn print(line: String) {
     println!("{line}");
 }
 
-pub fn rep() -> Result<(), Box<dyn Error>> {
+pub fn rep() -> () {
     loop {
         let mut buffer = String::new();
         print!("user> ");
-        stdout().flush()?;
+        stdout().flush().expect("Could not flush");
         match stdin().read_line(&mut buffer) {
             Ok(_) => {
                 if buffer.to_lowercase() == "exit\n" || buffer.to_lowercase() == "exit\r\n" {
-                    return Ok(());
+                    break;
                 };
-                buffer = read(buffer)?;
+                buffer = match read(buffer) {
+                    Ok(buffer) => buffer,
+                    Err(e) => {
+                        eprint!("{e}");
+                        break;
+                    }
+                };
                 buffer = eval(buffer);
                 print(buffer);
             }
             // EOF Signal
-            Err(_) => return Ok(()),
+            Err(_) => break,
         };
     }
+    ()
 }

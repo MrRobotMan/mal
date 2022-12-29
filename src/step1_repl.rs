@@ -1,20 +1,13 @@
-mod reader;
-
-use reader::Reader;
+use super::reader::Reader;
+use rustyline::{error::ReadlineError, Editor};
 
 use std::{
     error::Error,
     io::{self, stdin, stdout, Write},
 };
 
-fn read(line: String) -> Result<String, Box<dyn Error>> {
-    match line.lines().next() {
-        Some(s) => Ok(s.to_string()),
-        None => Err(Box::new(io::Error::new(
-            io::ErrorKind::Other,
-            "No Lines to Read",
-        ))),
-    }
+fn read(line: String) -> String {
+    line
 }
 
 fn eval(line: String) -> String {
@@ -25,22 +18,36 @@ fn print(line: String) {
     println!("{line}");
 }
 
-pub fn rep() -> Result<(), Box<dyn Error>> {
-    loop {
-        let mut buffer = String::new();
-        print!("user> ");
-        stdout().flush()?;
-        match stdin().read_line(&mut buffer) {
-            Ok(_) => {
-                if buffer.to_lowercase() == "exit\n" || buffer.to_lowercase() == "exit\r\n" {
-                    return Ok(());
-                };
-                buffer = read(buffer)?;
-                buffer = eval(buffer);
-                print(buffer);
-            }
-            // EOF Signal
-            Err(_) => return Ok(()),
-        };
+pub fn rep() -> () {
+    let mut rl = match Editor::<()>::new() {
+        Ok(rl) => rl,
+        Err(e) => {
+            eprintln!("{e}");
+            std::process::exit(1)
+        }
+    };
+    if rl.load_history(".mal_history").is_err() {
+        eprintln!("No previous history.");
     }
+    loop {
+        let readline = rl.readline("user> ");
+        match readline {
+            Ok(line) if line.to_lowercase() == "exit" => break,
+            Ok(line) => {
+                rl.add_history_entry(line.as_str());
+                let mut buffer = read(line);
+                buffer = eval(buffer);
+                print(buffer)
+            }
+            Err(ReadlineError::Eof) | Err(ReadlineError::Interrupted) => break,
+            Err(err) => {
+                eprintln!("{err}");
+                break;
+            }
+        }
+    }
+    match rl.save_history(".mal_history") {
+        Ok(_) => (),
+        Err(e) => eprintln!("{e}"),
+    };
 }

@@ -1,10 +1,11 @@
 use std::{error::Error, process::exit};
 
+mod reader;
 mod step0_repl;
 mod step1_repl;
 
 fn main() {
-    let runners: Vec<fn() -> Result<(), Box<dyn Error>>> = vec![step0_repl::rep, step1_repl::rep];
+    let runners: Vec<fn() -> ()> = vec![step0_repl::rep, step1_repl::rep];
     let args = std::env::args().collect::<Vec<String>>();
 
     let runner = if args.len() == 2 {
@@ -25,11 +26,5 @@ fn main() {
     } else {
         *runners.last().unwrap()
     };
-    match runner() {
-        Ok(_) => exit(0),
-        Err(e) => {
-            eprintln!("{e}");
-            exit(1);
-        }
-    }
+    runner();
 }
