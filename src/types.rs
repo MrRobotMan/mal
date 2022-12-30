@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MalVal {
     Nil,
     Bool(bool),
@@ -8,4 +8,5 @@ pub enum MalVal {
     Str(String),
     Sym(String),
     List(Rc<Vec<MalVal>>),
+    Vector(Rc<Vec<MalVal>>),
 }

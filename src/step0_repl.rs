@@ -21,7 +21,7 @@ fn print(line: String) {
     println!("{line}");
 }
 
-pub fn rep() -> () {
+pub fn rep() {
     loop {
         let mut buffer = String::new();
         print!("user> ");
@@ -45,5 +45,4 @@ pub fn rep() -> () {
             Err(_) => break,
         };
     }
-    ()
 }

@@ -6,11 +6,11 @@ use std::process::exit;
 mod printer;
 mod reader;
 mod step0_repl;
-mod step1_repl;
+mod step1_read_print;
 mod types;
 
 fn main() {
-    let runners: Vec<fn() -> ()> = vec![step0_repl::rep, step1_repl::rep];
+    let runners: Vec<fn() -> ()> = vec![step0_repl::rep, step1_read_print::rep];
     let args = std::env::args().collect::<Vec<String>>();
 
     let runner = if args.len() == 2 {

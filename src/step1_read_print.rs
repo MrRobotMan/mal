@@ -1,7 +1,7 @@
 use super::{printer::pr_str, reader::read_str};
 use rustyline::{error::ReadlineError, Editor};
 
-pub fn rep() -> () {
+pub fn rep() {
     let mut rl = match Editor::<()>::new() {
         Ok(rl) => rl,
         Err(e) => {
@@ -20,7 +20,7 @@ pub fn rep() -> () {
                 rl.add_history_entry(line.as_str());
                 match read_str(&line) {
                     Ok(val) => {
-                        println!("{}", pr_str(&val))
+                        println!("{}", pr_str(&val, true))
                     }
                     Err(e) => println!("{e}"),
                 };
