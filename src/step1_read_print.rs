@@ -15,6 +15,7 @@ pub fn rep() {
     loop {
         let readline = rl.readline("user> ");
         match readline {
+            Ok(line) if line.is_empty() => (),
             Ok(line) if line.to_lowercase() == "exit" => break,
             Ok(line) => {
                 rl.add_history_entry(line.as_str());

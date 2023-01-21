@@ -8,13 +8,19 @@ pub fn pr_str(val: &MalVal, print_readably: bool) -> String {
         Nil => String::from("nil"),
         Bool(v) => format!("{v}"),
         Int(i) => format!("{i}"),
-        Str(s) => match print_readably {
-            true => format!(r#""{}""#, escape(s)),
-            false => s.clone(),
-        },
+        Str(s) => {
+            if let Some(keyword) = s.strip_prefix('\u{29e}') {
+                format!(":{keyword}",)
+            } else if print_readably {
+                format!("\"{}\"", escape(s))
+            } else {
+                s.clone()
+            }
+        }
         Sym(s) => s.clone(),
         List(val) => pr_list(val, ('(', ')'), print_readably),
         Vector(val) => pr_list(val, ('[', ']'), print_readably),
+        Hashmap(val) => pr_list(val, ('{', '}'), print_readably),
     }
 }
 
@@ -34,6 +40,5 @@ fn escape(s: &str) -> String {
             '"' => "\\\"".to_string(),
             _ => c.to_string(),
         })
-        .collect::<Vec<String>>()
-        .join("")
+        .collect::<String>()
 }

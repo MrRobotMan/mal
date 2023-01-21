@@ -9,4 +9,17 @@ pub enum MalVal {
     Sym(String),
     List(Rc<Vec<MalVal>>),
     Vector(Rc<Vec<MalVal>>),
+    Hashmap(Rc<Vec<MalVal>>),
+}
+
+impl MalVal {
+    pub fn list(vals: Vec<MalVal>) -> Self {
+        Self::List(Rc::new(vals))
+    }
+    pub fn vector(vals: Vec<MalVal>) -> Self {
+        Self::Vector(Rc::new(vals))
+    }
+    pub fn hashmap(vals: Vec<MalVal>) -> Self {
+        Self::Hashmap(Rc::new(vals))
+    }
 }
