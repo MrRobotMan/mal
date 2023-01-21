@@ -10,7 +10,7 @@ pub enum MalVal {
     List(Rc<Vec<MalVal>>),
     Vector(Rc<Vec<MalVal>>),
     Hashmap(Rc<Vec<MalVal>>),
-    Func(fn(i64, i64) -> MalVal),
+    Func(fn(Vec<MalVal>) -> Result<MalVal, String>),
 }
 
 impl MalVal {
@@ -22,5 +22,12 @@ impl MalVal {
     }
     pub fn hashmap(vals: Vec<MalVal>) -> Self {
         Self::Hashmap(Rc::new(vals))
+    }
+
+    pub fn apply(&self, args: Vec<MalVal>) -> Result<MalVal, String> {
+        match *self {
+            MalVal::Func(f) => f(args),
+            _ => Err("Attempted to call a function on a non-function.".to_string()),
+        }
     }
 }

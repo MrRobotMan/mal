@@ -51,20 +51,10 @@ fn eval(ast: &MalVal, env: &HashMap<String, MalVal>) -> Result<MalVal, String> {
         MalVal::List(v) => {
             if v.is_empty() {
                 Ok(ast.clone())
+            } else if let MalVal::List(v) = eval_ast(ast, env)? {
+                v[0].apply(v[1..].to_vec())
             } else {
-                let ret = eval_ast(ast, env)?;
-                if let MalVal::List(v) = ret {
-                    if let [MalVal::Func(f), MalVal::Int(l), MalVal::Int(r)] = v[0..=2] {
-                        Ok(f(l, r))
-                    } else {
-                        Err(
-                            "eval_ast returned a list that did not meet (func, int, int)"
-                                .to_string(),
-                        )
-                    }
-                } else {
-                    Err("eval_ast should have returned a list.".to_string())
-                }
+                Err("eval_ast should have returned a list.".to_string())
             }
         }
         MalVal::Vector(v) => {
@@ -93,12 +83,32 @@ fn eval(ast: &MalVal, env: &HashMap<String, MalVal>) -> Result<MalVal, String> {
     }
 }
 
+fn int_operation(op: fn(i64, i64) -> i64, a: Vec<MalVal>) -> Result<MalVal, String> {
+    if let (MalVal::Int(l), MalVal::Int(r)) = (&a[0], &a[1]) {
+        Ok(MalVal::Int(op(*l, *r)))
+    } else {
+        Err("Invalid operands.".to_string())
+    }
+}
+
 pub fn main() {
     let mut repl_env = HashMap::new();
-    repl_env.insert("+".to_string(), MalVal::Func(|a, b| MalVal::Int(a + b)));
-    repl_env.insert("-".to_string(), MalVal::Func(|a, b| MalVal::Int(a - b)));
-    repl_env.insert("*".to_string(), MalVal::Func(|a, b| MalVal::Int(a * b)));
-    repl_env.insert("/".to_string(), MalVal::Func(|a, b| MalVal::Int(a / b)));
+    repl_env.insert(
+        "+".to_string(),
+        MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a + b, a)),
+    );
+    repl_env.insert(
+        "-".to_string(),
+        MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a - b, a)),
+    );
+    repl_env.insert(
+        "*".to_string(),
+        MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a * b, a)),
+    );
+    repl_env.insert(
+        "/".to_string(),
+        MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a / b, a)),
+    );
     let mut rl = match Editor::<()>::new() {
         Ok(rl) => rl,
         Err(e) => {
