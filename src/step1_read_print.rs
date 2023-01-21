@@ -1,7 +1,18 @@
-use super::{printer::pr_str, reader::read_str};
+#![allow(dead_code)]
+
+#[macro_use]
+extern crate lazy_static;
+
+mod printer;
+mod reader;
+mod types;
+
+use printer::pr_str;
+use reader::read_str;
+
 use rustyline::{error::ReadlineError, Editor};
 
-pub fn rep() {
+pub fn main() {
     let mut rl = match Editor::<()>::new() {
         Ok(rl) => rl,
         Err(e) => {

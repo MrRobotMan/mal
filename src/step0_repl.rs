@@ -21,7 +21,7 @@ fn print(line: String) {
     println!("{line}");
 }
 
-pub fn rep() {
+pub fn main() {
     loop {
         let mut buffer = String::new();
         print!("user> ");

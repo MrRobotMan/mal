@@ -21,6 +21,7 @@ pub fn pr_str(val: &MalVal, print_readably: bool) -> String {
         List(val) => pr_list(val, ('(', ')'), print_readably),
         Vector(val) => pr_list(val, ('[', ']'), print_readably),
         Hashmap(val) => pr_list(val, ('{', '}'), print_readably),
+        Func(f) => format!("<fn {f:?}>"),
     }
 }
 

@@ -10,6 +10,7 @@ pub enum MalVal {
     List(Rc<Vec<MalVal>>),
     Vector(Rc<Vec<MalVal>>),
     Hashmap(Rc<Vec<MalVal>>),
+    Func(fn(i64, i64) -> MalVal),
 }
 
 impl MalVal {
