@@ -92,7 +92,7 @@ impl Reader {
                 if INT_RE.is_match(s) {
                     Ok(Int(s.parse::<i64>().unwrap()))
                 } else if STR_RE.is_match(s) {
-                    Ok(Str(s.to_string()))
+                    Ok(Str(unescape(s)))
                 } else {
                     Ok(Sym(s.into()))
                 }
@@ -125,6 +125,11 @@ impl Reader {
             _ => Ok(MalVal::List(Rc::new(result))),     // List (default)
         }
     }
+}
+
+fn unescape(s: &str) -> String {
+    let cleaned = s.to_string();
+    cleaned.replace("\\\\", "\\")
 }
 
 #[cfg(test)]
