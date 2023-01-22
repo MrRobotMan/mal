@@ -95,6 +95,22 @@ impl Reader {
                         self.read_form()?,
                     ]))
                 }
+                "^" => {
+                    self.next();
+                    let meta = self.read_form()?;
+                    Ok(MalVal::list(vec![
+                        MalVal::Sym("with-meta".to_string()),
+                        self.read_form()?,
+                        meta,
+                    ]))
+                }
+                "@" => {
+                    self.next();
+                    Ok(MalVal::list(vec![
+                        MalVal::Sym("deref".to_string()),
+                        self.read_form()?,
+                    ]))
+                }
                 _ => self.read_atom(),
             },
             None => Err("Unexpected EOF".into()),

@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 #[macro_use]
 extern crate lazy_static;
 
@@ -48,4 +46,22 @@ pub fn main() {
         Ok(_) => (),
         Err(e) => eprintln!("{e}"),
     };
+}
+
+#[cfg(test)]
+mod test_builder;
+#[cfg(test)]
+mod tests {
+    use crate::{printer::pr_str, reader::read_str, test_builder::test_builder};
+
+    #[test]
+    fn test_step1_read_print() {
+        if let Ok(tests) = test_builder("test_files/step1_read_print.mal") {
+            for test in tests {
+                if let Ok(val) = read_str(&test.input) {
+                    assert_eq!(test.output, pr_str(&val, true))
+                }
+            }
+        }
+    }
 }

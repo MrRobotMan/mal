@@ -1,15 +1,9 @@
-use std::{
-    error::Error,
-    io::{self, stdin, stdout, Write},
-};
+use std::io::{stdin, stdout, Write};
 
-fn read(line: String) -> Result<String, Box<dyn Error>> {
+fn read(line: String) -> Result<String, String> {
     match line.lines().next() {
         Some(s) => Ok(s.to_string()),
-        None => Err(Box::new(io::Error::new(
-            io::ErrorKind::Other,
-            "No Lines to Read",
-        ))),
+        None => Err("No Lines to Read".into()),
     }
 }
 
@@ -17,8 +11,8 @@ fn eval(line: String) -> String {
     line
 }
 
-fn print(line: String) {
-    println!("{line}");
+fn print(line: String) -> String {
+    line
 }
 
 pub fn main() {
@@ -39,10 +33,27 @@ pub fn main() {
                     }
                 };
                 buffer = eval(buffer);
-                print(buffer);
+                println!("{}", print(buffer));
             }
             // EOF Signal
             Err(_) => break,
         };
+    }
+}
+
+#[cfg(test)]
+mod test_builder;
+
+#[cfg(test)]
+mod tests {
+    use super::{read, test_builder::test_builder};
+
+    #[test]
+    fn test_step0_repl() {
+        if let Ok(tests) = test_builder("test_files/step0_repl.mal") {
+            for test in tests {
+                assert_eq!(Ok(test.output), read(test.input))
+            }
+        }
     }
 }

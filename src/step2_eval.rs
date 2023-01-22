@@ -146,3 +146,22 @@ pub fn main() {
         Err(e) => eprintln!("{e}"),
     };
 }
+
+#[cfg(test)]
+mod test_builder;
+
+#[cfg(test)]
+mod tests {
+    use crate::{printer::pr_str, reader::read_str, test_builder::test_builder};
+
+    #[test]
+    fn test_step2_eval() {
+        if let Ok(tests) = test_builder("test_files/step1_read_print.mal") {
+            for test in tests {
+                if let Ok(val) = read_str(&test.input) {
+                    assert_eq!(test.output, pr_str(&val, true))
+                }
+            }
+        }
+    }
+}
