@@ -1,4 +1,6 @@
-use std::rc::Rc;
+#![allow(dead_code)]
+
+use std::{collections::HashMap, rc::Rc};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MalVal {
@@ -9,7 +11,7 @@ pub enum MalVal {
     Sym(String),
     List(Rc<Vec<MalVal>>),
     Vector(Rc<Vec<MalVal>>),
-    Hashmap(Rc<Vec<MalVal>>),
+    Hashmap(Rc<HashMap<String, MalVal>>),
     Func(fn(Vec<MalVal>) -> Result<MalVal, String>),
 }
 
@@ -20,7 +22,7 @@ impl MalVal {
     pub fn vector(vals: Vec<MalVal>) -> Self {
         Self::Vector(Rc::new(vals))
     }
-    pub fn hashmap(vals: Vec<MalVal>) -> Self {
+    pub fn hashmap(vals: HashMap<String, MalVal>) -> Self {
         Self::Hashmap(Rc::new(vals))
     }
 

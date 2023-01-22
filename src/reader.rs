@@ -1,4 +1,7 @@
+use std::collections::HashMap;
+
 use super::types::MalVal;
+use itertools::Itertools;
 use regex::Regex;
 
 pub fn read_str(st: &str) -> Result<MalVal, String> {
@@ -159,9 +162,23 @@ impl Reader {
         }
         self.next(); // Clear the "), }, or ]"
         match opening {
-            "{" => Ok(MalVal::hashmap(result)), // Hashmap
-            "[" => Ok(MalVal::vector(result)),  // Vector
-            "(" => Ok(MalVal::list(result)),    // List (default)
+            "{" => {
+                if result.len() % 2 != 0 {
+                    return Err("HashMap must have an even number of elements".to_string());
+                }
+                let mut hm: HashMap<String, MalVal> = HashMap::new();
+                for (k, v) in result.iter().tuples() {
+                    match k {
+                        MalVal::Str(s) => {
+                            hm.insert(s.clone(), v.clone());
+                        }
+                        _ => return Err("HashMap key must be a string".to_string()),
+                    }
+                }
+                Ok(MalVal::hashmap(hm))
+            } // Hashmap
+            "[" => Ok(MalVal::vector(result)), // Vector
+            "(" => Ok(MalVal::list(result)),   // List (default)
             _ => Err("Unknown ending bracket".into()),
         }
     }

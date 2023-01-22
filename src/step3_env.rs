@@ -1,34 +1,38 @@
 #[macro_use]
 extern crate lazy_static;
 
+mod env;
 mod printer;
 mod reader;
 mod types;
 
+use std::collections::HashMap;
+
+use env::Env;
 use printer::pr_str;
 use reader::read_str;
 use types::MalVal;
 
 use rustyline::{error::ReadlineError, Editor};
-use std::collections::HashMap;
 
-fn eval_ast(ast: &MalVal, env: &HashMap<String, MalVal>) -> Result<MalVal, String> {
+fn eval_ast(ast: &MalVal, env: &Env) -> Result<MalVal, String> {
+    use MalVal::*;
     match ast {
-        MalVal::Sym(s) => {
-            if let Some(func) = env.get(s) {
+        Sym(s) => {
+            if let Ok(func) = env.get(s) {
                 Ok(func.clone())
             } else {
                 Err(format!("No function for {s}"))
             }
         }
-        MalVal::List(v) => {
+        List(v) => {
             let mut collected: Vec<MalVal> = Vec::new();
             for mal in v.iter() {
                 collected.push(eval(mal, env)?)
             }
             Ok(MalVal::list(collected))
         }
-        MalVal::Vector(v) => {
+        Vector(v) => {
             let mut collected: Vec<MalVal> = Vec::new();
             for mal in v.iter() {
                 collected.push(eval(mal, env)?)
@@ -46,7 +50,7 @@ fn eval_ast(ast: &MalVal, env: &HashMap<String, MalVal>) -> Result<MalVal, Strin
     }
 }
 
-fn eval(ast: &MalVal, env: &HashMap<String, MalVal>) -> Result<MalVal, String> {
+fn eval(ast: &MalVal, env: &Env) -> Result<MalVal, String> {
     match ast {
         MalVal::List(v) => {
             if v.is_empty() {
@@ -70,20 +74,20 @@ fn int_operation(op: fn(i64, i64) -> i64, a: Vec<MalVal>) -> Result<MalVal, Stri
 }
 
 pub fn main() {
-    let mut repl_env = HashMap::new();
-    repl_env.insert(
+    let mut env = Env::default();
+    env.set(
         "+".to_string(),
         MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a + b, a)),
     );
-    repl_env.insert(
+    env.set(
         "-".to_string(),
         MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a - b, a)),
     );
-    repl_env.insert(
+    env.set(
         "*".to_string(),
         MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a * b, a)),
     );
-    repl_env.insert(
+    env.set(
         "/".to_string(),
         MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a / b, a)),
     );
@@ -105,7 +109,7 @@ pub fn main() {
             Ok(line) => {
                 rl.add_history_entry(line.as_str());
                 match read_str(&line) {
-                    Ok(val) => match eval(&val, &repl_env) {
+                    Ok(val) => match eval(&val, &env) {
                         Ok(val) => println!("{}", pr_str(&val, true)),
                         Err(e) => println!("ERROR: {e}"),
                     },
@@ -130,36 +134,14 @@ mod test_builder;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use crate::{printer::pr_str, reader::read_str, test_builder::test_builder};
 
     #[test]
     fn test_step2_eval() {
-        let mut repl_env = HashMap::new();
-        repl_env.insert(
-            "+".to_string(),
-            MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a + b, a)),
-        );
-        repl_env.insert(
-            "-".to_string(),
-            MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a - b, a)),
-        );
-        repl_env.insert(
-            "*".to_string(),
-            MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a * b, a)),
-        );
-        repl_env.insert(
-            "/".to_string(),
-            MalVal::Func(|a: Vec<MalVal>| int_operation(|a, b| a / b, a)),
-        );
-        if let Ok(tests) = test_builder("test_files/step2_eval.mal") {
+        if let Ok(tests) = test_builder("test_files/step3_env.mal") {
             for test in tests {
-                match read_str(&test.input) {
-                    Ok(val) => match eval(&val, &repl_env) {
-                        Ok(val) => assert_eq!(test.output, pr_str(&val, true)),
-                        Err(_) => assert!(false),
-                    },
-                    Err(_) => assert!(false),
+                if let Ok(val) = read_str(&test.input) {
+                    assert_eq!(test.output, pr_str(&val, true))
                 }
             }
         }

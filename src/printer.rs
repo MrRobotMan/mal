@@ -1,5 +1,3 @@
-use std::rc::Rc;
-
 use crate::types::MalVal;
 
 pub fn pr_str(val: &MalVal, print_readably: bool) -> String {
@@ -20,12 +18,18 @@ pub fn pr_str(val: &MalVal, print_readably: bool) -> String {
         Sym(s) => s.clone(),
         List(val) => pr_list(val, ('(', ')'), print_readably),
         Vector(val) => pr_list(val, ('[', ']'), print_readably),
-        Hashmap(val) => pr_list(val, ('{', '}'), print_readably),
+        Hashmap(val) => {
+            let flat = val
+                .iter()
+                .flat_map(|(k, v)| vec![Str(k.clone()), v.clone()])
+                .collect::<Vec<MalVal>>();
+            pr_list(&flat, ('{', '}'), print_readably)
+        }
         Func(f) => format!("<fn {f:?}>"),
     }
 }
 
-fn pr_list(val: &Rc<Vec<MalVal>>, braces: (char, char), print_readably: bool) -> String {
+fn pr_list(val: &Vec<MalVal>, braces: (char, char), print_readably: bool) -> String {
     let formatted = val
         .iter()
         .map(|val| pr_str(val, print_readably))
