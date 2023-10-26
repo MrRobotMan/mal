@@ -1,3 +1,4 @@
 /target
 /.vscode
 .mal_history
+*.bak
