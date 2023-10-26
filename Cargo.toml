@@ -12,18 +12,3 @@ regex = "1.7.0"
 rustyline = "10.0.0"
 
 
-[[bin]]
-name = "0"
-path = "src/step0_repl.rs"
-
-[[bin]]
-name = "1"
-path = "src/step1_read_print.rs"
-
-[[bin]]
-name = "2"
-path = "src/step2_eval.rs"
-
-[[bin]]
-name = "3"
-path = "src/step3_env.rs"
