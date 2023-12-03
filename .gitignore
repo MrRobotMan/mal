@@ -1,5 +1,6 @@
-/target
-/.vscode
+target/
+build/
 .mal_history
+test_files/
 *.bak
-/docs
+Cargo.lock
