@@ -28,7 +28,7 @@ need_stdout = false
 
 [jobs.test]
 command = [
-    "cargo", "run","--release", "--bin", "test", "step1_repl", "step1_repl.mal"
+    "cargo", "run","--release", "--bin", "test", "step1", "step1_read_print.mal"
     # "cargo", "test", "--color", "always",
     # "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
 ]
