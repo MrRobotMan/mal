@@ -5,16 +5,14 @@
 # You can also check bacon's own bacon.toml file
 #  as an example: https://github.com/Canop/bacon/blob/main/bacon.toml
 
-default_job = "check"
+default_job = "clippy"
 
 [jobs.check]
 command = ["cargo", "check", "--color", "always"]
-path = "impls/rust"
 need_stdout = false
 
 [jobs.check-all]
 command = ["cargo", "check", "--all-targets", "--color", "always"]
-path = "impls/rust"
 need_stdout = false
 
 [jobs.clippy]
@@ -23,7 +21,6 @@ command = [
     "--all-targets",
     "--color", "always",
 ]
-path = "impls/rust"
 need_stdout = false
 
 [jobs.test]
@@ -32,19 +29,16 @@ command = [
     # "cargo", "test", "--color", "always",
     # "--", "--color", "always", # see https://github.com/Canop/bacon/issues/124
 ]
-path = "impls/rust"
 need_stdout = true
 
 [jobs.doc]
 command = ["cargo", "doc", "--color", "always", "--no-deps"]
-path = "impls/rust"
 need_stdout = false
 
 # If the doc compiles, then it opens in your browser and bacon switches
 # to the previous job
 [jobs.doc-open]
 command = ["cargo", "doc", "--color", "always", "--no-deps", "--open" ]
-path = "impls/rust"
 need_stdout = false
 on_success = "back" # so that we don't open the browser at each change
 
@@ -58,7 +52,6 @@ command = [
     "--color", "always", 
     # put launch parameters for your program behind a `--` separator
 ]
-path = "impls/rust"
 need_stdout = true
 allow_warnings = true
 

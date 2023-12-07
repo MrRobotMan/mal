@@ -11,6 +11,8 @@ fn main() {
     let mut output = None;
     let mut passed = 0;
     let mut failures = Vec::new();
+    println!("\n\n--- TESTING {} ---", options.testmod);
+    println!("------------------");
     for line in test_results {
         match line {
             TestRunner::Message(m) => println!("{m}"),
@@ -27,7 +29,6 @@ fn main() {
                 output = Some(o);
                 let inp = input.take().unwrap_or_else(|| panic!("No Input"));
                 let out = output.take().unwrap_or_else(|| panic!("No Output"));
-                println!("{inp} => {out}");
                 let result = check_results(&options.testmod, &inp, &out);
                 if result.pass {
                     passed += 1;
@@ -40,7 +41,6 @@ fn main() {
     }
     let failed = failures.len();
     let total = passed + failed;
-    println!("\n\n--- {} TEST RESULTS ---", options.testmod);
     println!("  {passed}: passing");
     println!("  {failed}: failing");
     println!("  {total}: total");

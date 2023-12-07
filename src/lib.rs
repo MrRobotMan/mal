@@ -6,6 +6,9 @@ use rustyline::{
     Helper,
 };
 
+#[macro_use]
+extern crate lazy_static;
+
 pub struct RlHelper {}
 
 impl Completer for RlHelper {
@@ -45,3 +48,9 @@ impl Hint for RlHint {
         None
     }
 }
+
+pub mod reader;
+pub use reader::*;
+
+pub mod types;
+pub use types::*;
