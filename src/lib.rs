@@ -5,6 +5,14 @@ use rustyline::{
     validate::Validator,
     Helper,
 };
+pub mod types;
+pub use types::*;
+
+pub mod reader;
+pub use reader::*;
+
+pub mod printer;
+pub use printer::*;
 
 #[macro_use]
 extern crate lazy_static;
@@ -48,9 +56,3 @@ impl Hint for RlHint {
         None
     }
 }
-
-pub mod reader;
-pub use reader::*;
-
-pub mod types;
-pub use types::*;

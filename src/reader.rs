@@ -1,4 +1,4 @@
-use crate::{MalError, MalRes, Token, SYMBOLS};
+use crate::{MalError, MalRes, Token};
 use lazy_static;
 use regex::{Captures, Regex};
 use std::collections::{HashMap, VecDeque};
@@ -10,6 +10,7 @@ lazy_static! {
     static ref INTEGER: Regex = Regex::new(r#"^-?\d+$"#).unwrap();
     static ref FLOAT: Regex = Regex::new(r#"^-?\d+\.\d*$"#).unwrap();
     static ref STRING: Regex = Regex::new(r#""(?:\\.|[^\\"])*""#).unwrap();
+    static ref UNESCAPE: Regex = Regex::new(r#"\\(.)"#).unwrap();
 }
 
 struct Reader {
@@ -65,6 +66,22 @@ impl Reader {
                 Ok(Token::List(vec![
                     Token::Symbol("splice-unquote".into()),
                     self.read_form()?,
+                ]))
+            }
+            "@" => {
+                let _ = self.next_token(); // Clear the peeked token
+                Ok(Token::List(vec![
+                    Token::Symbol("deref".into()),
+                    self.read_form()?,
+                ]))
+            }
+            "^" => {
+                let _ = self.next_token(); // Clear the peeked token
+                let meta = self.read_form()?;
+                Ok(Token::List(vec![
+                    Token::Symbol("with-meta".into()),
+                    self.read_form()?,
+                    meta,
                 ]))
             }
             _ => self.read_atom(),
@@ -124,15 +141,13 @@ impl Reader {
                 } else if INTEGER.is_match(token) {
                     Ok(Token::Number(token.parse::<i64>().unwrap() as f64))
                 } else if STRING.is_match(token) {
-                    Ok(Token::String(unescape(token)))
+                    Ok(Token::String(unescape(&token[1..token.len() - 1])))
                 } else if let Some(t) = token.strip_prefix(':') {
                     Ok(Token::String(format!("\u{29e}{t}")))
                 } else if token.starts_with('\"') {
                     Err(MalError::Eof("\"".into()))
-                } else if SYMBOLS.contains(token) {
-                    Ok(Token::Symbol(token.to_string()))
                 } else {
-                    Err(MalError::UnknownToken(String::new()))
+                    Ok(Token::Symbol(token.to_string()))
                 }
             }
         }
@@ -140,18 +155,16 @@ impl Reader {
 }
 
 fn unescape(s: &str) -> String {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r#""\\(.)""#).unwrap();
-    }
-    RE.replace_all(s, |capture: &Captures| {
-        (if &capture[1] == "n" {
-            "\n"
-        } else {
-            &capture[1]
+    UNESCAPE
+        .replace_all(s, |capture: &Captures| {
+            (if &capture[1] == "n" {
+                "\n"
+            } else {
+                &capture[1]
+            })
+            .to_string()
         })
-        .to_string()
-    })
-    .into()
+        .into()
 }
 
 pub fn read_str(input: &str) -> MalRes<Token> {

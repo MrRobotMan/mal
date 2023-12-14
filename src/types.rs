@@ -4,8 +4,6 @@ use thiserror::Error;
 
 pub type MalRes<T> = Result<T, MalError>;
 
-pub const SYMBOLS: &str = "+-/*";
-
 #[derive(Debug, Clone)]
 pub enum Token {
     Symbol(String),
