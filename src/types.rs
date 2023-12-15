@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use thiserror::Error;
 
 pub type MalRes<T> = Result<T, MalError>;
+pub type MalFunc = fn(Vec<Token>) -> MalRes<Token>;
 
 #[derive(Debug, Clone)]
 pub enum Token {
@@ -14,6 +15,24 @@ pub enum Token {
     Map(HashMap<String, Token>),
     Nil,
     Bool(bool),
+    Func(MalFunc),
+}
+
+impl PartialEq for Token {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Token::Symbol(l), Token::Symbol(r)) => l == r,
+            (Token::Number(l), Token::Number(r)) => l == r,
+            (Token::String(l), Token::String(r)) => l == r,
+            (Token::List(l), Token::List(r)) => l == r,
+            (Token::Vector(l), Token::Vector(r)) => l == r,
+            (Token::Map(l), Token::Map(r)) => l == r,
+            (Token::Nil, Token::Nil) => true,
+            (Token::Bool(l), Token::Bool(r)) => l == r,
+            (Token::Func(l), Token::Func(r)) => l == r,
+            _ => false,
+        }
+    }
 }
 
 #[derive(Error, Debug)]
@@ -34,4 +53,6 @@ pub enum MalError {
     Map,
     #[error("Map keys must be strings, not {0:?}")]
     MapKey(Token),
+    #[error("Unknown Function {0}")]
+    NoReplFunction(String),
 }

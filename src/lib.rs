@@ -14,6 +14,9 @@ pub use reader::*;
 pub mod printer;
 pub use printer::*;
 
+pub mod env;
+pub use env::*;
+
 #[macro_use]
 extern crate lazy_static;
 

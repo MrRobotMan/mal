@@ -24,6 +24,7 @@ pub fn pr_str(token: &Token, escaped: bool) -> String {
         }
         Token::Nil => "nil".into(),
         Token::Bool(b) => format!("{b}"),
+        Token::Func(f) => format!("#<fn {f:?}>"),
     }
 }
 
