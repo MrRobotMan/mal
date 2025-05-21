@@ -1,6 +1,3 @@
-mod readline;
-pub use readline::{RlHelper, readline};
-
 pub fn rep<S: Into<String>>(cmd: S) -> String {
     let cmd = cmd.into();
     let cmd = read(cmd);
