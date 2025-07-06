@@ -194,6 +194,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "step1"
+version = "0.1.0"
+dependencies = [
+ "rustyline",
+ "thiserror",
+]
+
+[[package]]
 name = "syn"
 version = "2.0.101"
 source = "registry+https://github.com/rust-lang/crates.io-index"

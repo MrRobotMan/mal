@@ -1,4 +1,4 @@
 [workspace]
-members = ["step0"]
 resolver = "3"
+members = ["step0", "step1"]
 
