@@ -1,6 +1,6 @@
 target/
 build/
-.mal_history
+.mal_history*
 test_files/
 *.bak
 Cargo.lock
