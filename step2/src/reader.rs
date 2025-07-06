@@ -13,7 +13,7 @@ static TOKENS: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 static INTEGER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d+$").unwrap());
-static FLOAT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d*\.\d*$").unwrap()); // Will also match on just "." and "-."
+static FLOAT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?(\d+\.\d*|\d*\.\d+)$").unwrap());
 static STRING: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#""(?:\\.|[^\\"])*""#).unwrap());
 static UNESCAPE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\(.)").unwrap());
 
@@ -104,7 +104,7 @@ fn read_atom(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
             if FLOAT.is_match(token) || INTEGER.is_match(token) {
                 match token.parse::<f64>() {
                     Ok(n) => Ok(Token::Number(n)),
-                    Err(_) => Ok(Token::String(unescape(token).into())),
+                    Err(_) => Err(MalError::ParseNumError(token.into())),
                 }
             } else if STRING.is_match(token) {
                 Ok(Token::String(unescape(&(token[1..token.len() - 1])).into()))

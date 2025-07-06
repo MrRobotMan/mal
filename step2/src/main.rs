@@ -1,6 +1,10 @@
 use rustyline::{Editor, config::Builder, error::ReadlineError, history::FileHistory};
 use std::error::Error;
-use step2::rep;
+
+mod error;
+mod printer;
+mod reader;
+mod token;
 
 const HISTORY_FILE: &str = ".mal_history.txt";
 
@@ -32,3 +36,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     rl.save_history(HISTORY_FILE)?;
     Ok(())
 }
+
+fn rep<S: AsRef<str>>(cmd: S) -> error::MalRes<String> {
+    let cmd = cmd.as_ref();
+    let cmd = reader::read(cmd)?;
+    let cmd = eval(cmd)?;
+    Ok(printer::print(cmd, true))
+}
+
+fn eval(input: token::Token) -> error::MalRes<token::Token> {
+    Ok(input)
+}
+
+#[cfg(test)]
+mod tests;

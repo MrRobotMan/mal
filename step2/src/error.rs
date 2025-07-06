@@ -1,13 +1,13 @@
 use thiserror::Error;
 
-use crate::Token;
+use crate::token::Token;
 
 pub type MalRes<T> = Result<T, MalError>;
 
 #[derive(Debug, Error)]
 pub enum MalError {
     #[error("Unknown token {0}")]
-    BadToken(char),
+    _BadToken(char),
     #[error("Mismatched closing bracket {0}")]
     Brace(String),
     #[error("No tokens to parse")]
@@ -20,4 +20,6 @@ pub enum MalError {
     MistmatchKeyValue,
     #[error("No token to peek")]
     Peek,
+    #[error("Could not parse {0} as a number")]
+    ParseNumError(String),
 }
