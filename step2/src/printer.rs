@@ -3,17 +3,11 @@ use crate::token::Token;
 pub fn print(token: Token, escape: bool) -> String {
     match token {
         Token::Bool(b) => format!("{b}"),
+        Token::Integer(n) => format!("{n}"),
         Token::List(tokens) => print_sequence(tokens, escape, ['(', ')'], ' '),
-        Token::Map(map) => print_sequence(
-            map.iter()
-                .flat_map(|(k, v)| vec![Token::String(k.clone()), v.clone()])
-                .collect(),
-            escape,
-            ['{', '}'],
-            ' ',
-        ),
+        Token::Map(tokens) => print_sequence(tokens, escape, ['{', '}'], ' '),
         Token::Nil => "nil".into(),
-        Token::Number(n) => format!("{n}"),
+        Token::Real(n) => format!("{n}"),
         Token::String(s) => {
             if let Some(t) = s.strip_prefix("\u{29e}") {
                 format!(":{t}")

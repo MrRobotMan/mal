@@ -3,17 +3,14 @@ use crate::{
     token::Token,
 };
 use regex::{Captures, Regex};
-use std::{
-    collections::{HashMap, VecDeque},
-    sync::LazyLock,
-};
+use std::{collections::VecDeque, sync::LazyLock};
 
 static TOKENS: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"[\s,]*(~@|[\[\]{}()'`~^@]|"(?:\\.|[^\\"])*"?|;.*|[^\s\[\]{}('"`,;)]*)"#).unwrap()
 });
 
-static INTEGER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d+$").unwrap());
-static FLOAT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?(\d+\.\d*|\d*\.\d+)$").unwrap());
+// static INTEGER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?\d+$").unwrap());
+// static FLOAT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^-?(\d+\.\d*|\d*\.\d+)$").unwrap());
 static STRING: LazyLock<Regex> = LazyLock::new(|| Regex::new(r#""(?:\\.|[^\\"])*""#).unwrap());
 static UNESCAPE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\\(.)").unwrap());
 
@@ -101,11 +98,10 @@ fn read_atom(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
         "true" => Ok(Token::Bool(true)),
         "false" => Ok(Token::Bool(false)),
         token => {
-            if FLOAT.is_match(token) || INTEGER.is_match(token) {
-                match token.parse::<f64>() {
-                    Ok(n) => Ok(Token::Number(n)),
-                    Err(_) => Err(MalError::ParseNumError(token.into())),
-                }
+            if let Ok(num) = token.parse::<i64>() {
+                Ok(Token::Integer(num))
+            } else if let Ok(num) = token.parse::<f64>() {
+                Ok(Token::Real(num))
             } else if STRING.is_match(token) {
                 Ok(Token::String(unescape(&(token[1..token.len() - 1])).into()))
             } else if let Some(t) = token.strip_prefix(':') {
@@ -160,10 +156,11 @@ fn read_sequence(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
             if list.len() % 2 == 1 {
                 return Err(MalError::MistmatchKeyValue);
             };
-            let mut map = HashMap::new();
+            let mut map = Vec::new();
             for chunk in list.chunks(2) {
                 if let Token::String(s) = &chunk[0] {
-                    map.insert(s.clone(), chunk[1].clone());
+                    map.push(Token::String(s.clone()));
+                    map.push(chunk[1].clone());
                 } else {
                     return Err(MalError::Map(chunk[0].clone()));
                 }

@@ -1,7 +1,8 @@
 use super::*;
 
 fn test_runner(inp: &str, out: Option<&str>) {
-    let res = rep(inp);
+    let env = env::Env::default();
+    let res = rep(inp, &env);
     if let Some(s) = out {
         assert!(res.is_ok());
         assert_eq!(res.unwrap(), s);

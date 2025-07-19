@@ -1,12 +1,11 @@
-use std::collections::HashMap;
-
 #[derive(Debug, Clone)]
-pub enum Token {
+pub(crate) enum Token {
     Bool(bool),
+    Integer(i64),
     List(Vec<Token>),
-    Map(HashMap<String, Token>),
+    Map(Vec<Token>),
     Nil,
-    Number(f64),
+    Real(f64),
     String(String),
     Symbol(String),
     Vector(Vec<Token>),
@@ -15,14 +14,15 @@ pub enum Token {
 impl Token {
     pub(crate) fn token_type(&self) -> &str {
         match self {
-            Token::Bool(_) => "bool",
-            Token::List(_) => "list",
-            Token::Map(_) => "map",
-            Token::Nil => "nil",
-            Token::Number(_) => "number",
-            Token::String(_) => "string",
-            Token::Symbol(_) => "symbol",
-            Token::Vector(_) => "vector",
+            Self::Bool(_) => "bool",
+            Self::Integer(_) => "integer",
+            Self::List(_) => "list",
+            Self::Map(_) => "map",
+            Self::Nil => "nil",
+            Self::Real(_) => "real",
+            Self::String(_) => "string",
+            Self::Symbol(_) => "symbol",
+            Self::Vector(_) => "vector",
         }
     }
 }

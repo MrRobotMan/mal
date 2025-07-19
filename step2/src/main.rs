@@ -1,7 +1,10 @@
 use rustyline::{Editor, config::Builder, error::ReadlineError, history::FileHistory};
 use std::error::Error;
+use token::Token;
 
+mod env;
 mod error;
+mod eval;
 mod printer;
 mod reader;
 mod token;
@@ -18,12 +21,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     if rl.load_history(HISTORY_FILE).is_err() {
         println!("No previous history.")
     }
+    let mut env = env::Env::default();
+    env.insert("DEBUG-EVAL", Box::new(|_| Ok(Token::Bool(true))));
     loop {
         let readline = rl.readline("user> ");
         match readline {
             Ok(line) => {
                 rl.add_history_entry(line.as_str())?;
-                println!("{}", rep(line)?);
+                match rep(line, &env) {
+                    Ok(res) => println!("{res}"),
+                    Err(err) => println!("Error: {err}"),
+                }
             }
 
             Err(ReadlineError::Eof) | Err(ReadlineError::Interrupted) => break,
@@ -37,15 +45,11 @@ fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn rep<S: AsRef<str>>(cmd: S) -> error::MalRes<String> {
+fn rep<S: AsRef<str>>(cmd: S, env: &env::Env) -> error::MalRes<String> {
     let cmd = cmd.as_ref();
-    let cmd = reader::read(cmd)?;
-    let cmd = eval(cmd)?;
-    Ok(printer::print(cmd, true))
-}
-
-fn eval(input: token::Token) -> error::MalRes<token::Token> {
-    Ok(input)
+    let ast = reader::read(cmd)?;
+    let expr = eval::eval(ast, env)?;
+    Ok(printer::print(expr, true))
 }
 
 #[cfg(test)]
