@@ -8,7 +8,7 @@ use crate::{
 pub(crate) fn eval(ast: Token, env: &Env) -> MalRes<Token> {
     if let Some(f) = env.get("DEBUG-EVAL") {
         if let Ok(Token::Bool(true)) = f(&[]) {
-            print(ast.clone(), true);
+            println!("EVAL: {}", print(ast.clone(), true));
         };
     }
     match ast {

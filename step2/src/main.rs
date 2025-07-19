@@ -22,7 +22,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         println!("No previous history.")
     }
     let mut env = env::Env::default();
-    env.insert("DEBUG-EVAL", Box::new(|_| Ok(Token::Bool(true))));
+    env.insert("DEBUG-EVAL", Box::new(|_| Ok(Token::Bool(false))));
     loop {
         let readline = rl.readline("user> ");
         match readline {
