@@ -1,0 +1,10 @@
+[package]
+name = "step3"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+regex = "1.11.1"
+rustyline= "15.0.0"
+thiserror = "2.0.12"
+
