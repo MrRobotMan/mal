@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     if rl.load_history(HISTORY_FILE).is_err() {
         println!("No previous history.")
     }
-    let mut env = env::Env::default().with_debug();
+    let mut env = env::Env::default();
     loop {
         let readline = rl.readline("user> ");
         match readline {
