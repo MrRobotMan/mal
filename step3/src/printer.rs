@@ -1,8 +1,10 @@
 use crate::token::Token;
+use std::collections::VecDeque;
 
 pub fn print(token: Token, escape: bool) -> String {
     match token {
         Token::Bool(b) => format!("{b}"),
+        Token::Func(_) => format!("Function Call"),
         Token::Integer(n) => format!("{n}"),
         Token::List(tokens) => print_sequence(tokens, escape, ['(', ')'], ' '),
         Token::Map(tokens) => print_sequence(tokens, escape, ['{', '}'], ' '),
@@ -22,7 +24,7 @@ pub fn print(token: Token, escape: bool) -> String {
     }
 }
 
-fn print_sequence(tokens: Vec<Token>, escape: bool, braces: [char; 2], sep: char) -> String {
+fn print_sequence(tokens: VecDeque<Token>, escape: bool, braces: [char; 2], sep: char) -> String {
     let mut s = braces[0].to_string();
     for token in tokens {
         s.push_str(&print(token, escape));

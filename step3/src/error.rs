@@ -6,8 +6,12 @@ pub type MalRes<T> = Result<T, MalError>;
 
 #[derive(Debug, Error)]
 pub enum MalError {
+    #[error("Bad function definition. Name should be string, got {}", Token::try_token_type(.0))]
+    BadDef(Option<Token>),
     #[error("Symbol found outside of list")]
     BadSymbolPosition,
+    #[error("Expected string, got {}", .0.token_type())]
+    BadTokenString(Token),
     #[error("Mismatched closing bracket {0}")]
     Brace(String),
     #[error("No tokens to parse")]
@@ -18,10 +22,12 @@ pub enum MalError {
     FnError(#[from] FnError),
     #[error("Map keys must be strings. Found {}", .0.token_type())]
     Map(Token),
-    #[error("Can't convert to map, odd number of elements")]
-    MistmatchKeyValue,
+    #[error("Can't convert to {0}, odd number of elements")]
+    MistmatchKeyValue(String),
     #[error("No token to peek")]
     Peek,
+    #[error("Unknown symbol {0}")]
+    UnknownSymbol(String),
 }
 
 #[derive(Debug, Error)]

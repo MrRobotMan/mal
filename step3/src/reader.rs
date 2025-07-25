@@ -45,48 +45,48 @@ fn read_tokens(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
         c if "]})".contains(c) => Err(MalError::Brace(c.into())),
         "'" => {
             let _ = next(tokens); // Clear the peeked token
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("quote".into()),
                 read_tokens(tokens)?,
-            ]))
+            ])))
         }
         "`" => {
             let _ = next(tokens); // Clear the peeked token
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("quasiquote".into()),
                 read_tokens(tokens)?,
-            ]))
+            ])))
         }
         "~" => {
             let _ = next(tokens); // Clear the peeked token
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("unquote".into()),
                 read_tokens(tokens)?,
-            ]))
+            ])))
         }
         "~@" => {
             let _ = next(tokens); // Clear the peeked token
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("splice-unquote".into()),
                 read_tokens(tokens)?,
-            ]))
+            ])))
         }
         "@" => {
             let _ = next(tokens); // Clear the peeked token
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("deref".into()),
                 read_tokens(tokens)?,
-            ]))
+            ])))
         }
         "^" => {
             let _ = next(tokens); // Clear the peeked token
             let meta = read_tokens(tokens)?;
 
-            Ok(Token::List(vec![
+            Ok(Token::List(VecDeque::from(vec![
                 Token::Symbol("with-meta".into()),
                 read_tokens(tokens)?,
                 meta,
-            ]))
+            ])))
         }
         _ => read_atom(tokens),
     }
@@ -126,7 +126,7 @@ fn unescape(token: &str) -> std::borrow::Cow<'_, str> {
 }
 
 fn read_sequence(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
-    let mut list = Vec::new();
+    let mut list = VecDeque::new();
     // Read the opening brace
     let closing = match next(tokens)? {
         "[" => "]",
@@ -139,7 +139,7 @@ fn read_sequence(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
             if t == closing {
                 break;
             } else {
-                list.push(read_tokens(tokens)?);
+                list.push_back(read_tokens(tokens)?);
             }
         } else {
             return Err(MalError::Eof(closing.into()));
@@ -154,13 +154,14 @@ fn read_sequence(tokens: &mut VecDeque<&str>) -> MalRes<Token> {
         "]" => Ok(Token::Vector(list)),
         "}" => {
             if list.len() % 2 == 1 {
-                return Err(MalError::MistmatchKeyValue);
+                return Err(MalError::MistmatchKeyValue("Map".into()));
             };
-            let mut map = Vec::new();
-            for chunk in list.chunks(2) {
+            list.make_contiguous();
+            let mut map = VecDeque::new();
+            for chunk in list.as_slices().0.chunks(2) {
                 if let Token::String(s) = &chunk[0] {
-                    map.push(Token::String(s.clone()));
-                    map.push(chunk[1].clone());
+                    map.push_back(Token::String(s.clone()));
+                    map.push_back(chunk[1].clone());
                 } else {
                     return Err(MalError::Map(chunk[0].clone()));
                 }

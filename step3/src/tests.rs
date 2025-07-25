@@ -1,14 +1,17 @@
 use super::*;
 
 fn test_runner(inp: &[&str], out: Option<&str>) {
-    let env = env::Env::default();
-    let mut res = rep(inp[0], &env);
+    let mut env = env::Env::default().with_debug();
+    let mut res = rep(inp[0], &mut env);
     if inp.len() > 1 {
         for line in inp.iter().skip(1) {
-            res = rep(line, &env);
+            res = rep(line, &mut env);
         }
     }
     if let Some(s) = out {
+        if let Err(e) = &res {
+            println!("{e:?}");
+        }
         assert!(res.is_ok());
         assert_eq!(res.unwrap(), s);
     } else {
